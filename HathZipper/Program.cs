@@ -12,7 +12,7 @@ namespace HathZipper
         {
             Console.Title = "HathZipper Alpha 20140122_00x001";
             Console.WindowWidth = 140;
-            string targetdir = HathZipper.general.Default.TargetDirecory;
+            string targetdir = general.Default.TargetDirecory;
             bool help = false;
             bool error = false;
             bool delete = false;
@@ -31,16 +31,16 @@ namespace HathZipper
             List<string> Extra = p.Parse(args);
 
             Console.WriteLine(targetdir);
-
-            if (HathZipper.general.Default.TargetDirecory == "" && targetdir == "")
+            
+            if (general.Default.TargetDirecory == "" && targetdir == "")
             {
                 ConsoleError("TargetDirectory isn't set, please update the config file or use --set-targetdir=foo to update the config file");
                 help = true;
                 error = true;
             }
-            else if (HathZipper.general.Default.TargetDirecory != targetdir) // targetdir is updated, update settings
+            else if (general.Default.TargetDirecory != targetdir) // targetdir is updated, update settings
             {
-                HathZipper.general.Default.TargetDirecory = targetdir;
+                general.Default.TargetDirecory = targetdir;
             }
             else if (Extra.Count == 0)
             {
@@ -79,7 +79,6 @@ namespace HathZipper
 
         private static List<string> GetCompletedHatHGalleries(string path)
         {
-            ConsoleSpinner cs = new ConsoleSpinner();
             Console.WriteLine("Looking for completed HatH galleries in " + path);
             string[] Files = Directory.GetFiles(path, "galleryinfo.txt", SearchOption.AllDirectories);
             List<string> CompletedDirectories = new List<string>();
