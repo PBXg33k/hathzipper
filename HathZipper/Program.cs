@@ -77,6 +77,12 @@ namespace HathZipper
                 ShowHelp(p);
         }
 
+        /// <summary>
+        /// Looks up galleries that are completed by the HatH client.
+        /// These galleries contain a galleryinfo.txt file.
+        /// </summary>
+        /// <param name="path">{hath_client_path}/downloaded</param>
+        /// <returns>Lists of gallerypaths</returns>
         private static List<string> GetCompletedHatHGalleries(string path)
         {
             Console.WriteLine("Looking for completed HatH galleries in " + path);
@@ -91,6 +97,23 @@ namespace HathZipper
             return CompletedDirectories;
         }
 
+        /// <summary>
+        /// Checks if the given Gallery is already compressed to a file in the output directory
+        /// </summary>
+        /// <param name="path">Path to the galllery</param>
+        /// <returns>TRUE if zip exists, FALSE if not</returns>
+        private static bool CheckGalleryStatus(string path)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// Compresses the given gallery to a zipfile
+        /// </summary>
+        /// <param name="path">Path to the gallery</param>
+        /// <param name="test">Test the zip right after compression</param>
+        /// <param name="target">Output directory to place the zipfile</param>
+        /// <returns></returns>
         private static bool CompressGallery(string path, bool test, string target)
         {
             string galleryName = new DirectoryInfo(path).Name;
@@ -128,6 +151,10 @@ namespace HathZipper
             Console.Write(line);
         }
 
+        /// <summary>
+        /// Dumps formatted error message in red to console
+        /// </summary>
+        /// <param name="error">Error message as a string</param>
         private static void ConsoleError(string error)
         {
             Console.WriteLine("ERROR: " + error, Console.ForegroundColor = ConsoleColor.Red);
@@ -135,6 +162,10 @@ namespace HathZipper
             Console.WriteLine();
         }
 
+        /// <summary>
+        /// Dumps all arguments to console in case invalid arguments are given or "?" is used
+        /// </summary>
+        /// <param name="p"></param>
         private static void ShowHelp(OptionSet p)
         {
             Console.WriteLine("Usage: HathZipper [OPTIONS]+ Source directory");
