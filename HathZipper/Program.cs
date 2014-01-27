@@ -57,24 +57,17 @@ namespace HathZipper
 
             if (!error)
             {
-                List<string> CompletedGalleries = GetCompletedHatHGalleries(Extra[0]);
-
-                if (CompletedGalleries.Count > 0)
-                {
-                    foreach (string gallery in CompletedGalleries)
-                    {
-                        bool result = CompressGallery(gallery, test, targetdir);
-                        if (delete && result)
-                        {
-                            //Delete gallery
-                            DeleteGallery(gallery); // UNTESTED!
-                        }
-                    }
-                }
+                HathZipper zipper = new HathZipper(Extra[0],targetdir);
+                TestGallery(zipper);
             }
 
             if (help)
                 ShowHelp(p);
+        }
+
+        private static void TestGallery(HathZipper zipper)
+        {
+            zipper.ScanGalleries(); //Loads all (completed) galleries, TODO: Test performance
         }
 
         /// <summary>
