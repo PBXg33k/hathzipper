@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,13 +17,13 @@ namespace HathZipper
 
         public DirectoryInfo GalleriesDirectory { get; set; }
         public DirectoryInfo OutputDirectory { get; set; }
-        public List<Gallery> Galleries { get; set; }
+        public BindingList<Gallery> Galleries { get; set; }
 
         public HathZipper(string GalleriesDirectory)
         {
             DirectoryInfo gd = new DirectoryInfo(GalleriesDirectory);
             this.GalleriesDirectory = gd;
-            this.Galleries = new List<Gallery>();
+            this.Galleries = new BindingList<Gallery>();
         }
 
         public HathZipper(string GalleriesDirectory, string OutputDirectory)
@@ -31,10 +32,10 @@ namespace HathZipper
             this.GalleriesDirectory = gd;
             DirectoryInfo od = new DirectoryInfo(OutputDirectory);
             this.OutputDirectory = od;
-            this.Galleries = new List<Gallery>();
+            this.Galleries = new BindingList<Gallery>();
         }
 
-        public HathZipper(string GalleriesDirectory, string OutputDirectory, List<Gallery> Galleries)
+        public HathZipper(string GalleriesDirectory, string OutputDirectory, BindingList<Gallery> Galleries)
         {
             DirectoryInfo gd = new DirectoryInfo(GalleriesDirectory);
             this.GalleriesDirectory = gd;
@@ -45,21 +46,21 @@ namespace HathZipper
         public HathZipper(DirectoryInfo GalleriesDirectory)
         {
             this.GalleriesDirectory = GalleriesDirectory;
-            this.Galleries = new List<Gallery>();
+            this.Galleries = new BindingList<Gallery>();
         }
         public HathZipper(DirectoryInfo GalleriesDirectory, DirectoryInfo OutputDirectory)
         {
             this.GalleriesDirectory = GalleriesDirectory;
             this.OutputDirectory = OutputDirectory;
-            this.Galleries = new List<Gallery>();
+            this.Galleries = new BindingList<Gallery>();
         }
-        public HathZipper(DirectoryInfo GalleriesDirectory, DirectoryInfo OutputDirectory, List<Gallery> Galleries)
+        public HathZipper(DirectoryInfo GalleriesDirectory, DirectoryInfo OutputDirectory, BindingList<Gallery> Galleries)
         {
             this.GalleriesDirectory = GalleriesDirectory;
             this.OutputDirectory = OutputDirectory;
             this.Galleries = Galleries;
         }
-        
+
         public void ScanGalleries()
         {
             ScanGalleries(true, 3);
@@ -84,7 +85,6 @@ namespace HathZipper
                     break;
             }
         }
-
         private void ScanGalleriesMethodOne(bool OnlyCompleted)
         {
             string[] gallerypaths = null;
@@ -105,7 +105,6 @@ namespace HathZipper
                 this.Galleries.Add(gallery);
             }
         }
-
         private void ScanGalleriesMethodTwo(bool OnlyCompleted)
         {
             DirectoryInfo[] directories = null;
@@ -132,7 +131,6 @@ namespace HathZipper
                 }
             }
         }
-
         private void ScanGalleriesMethodThree(bool OnlyCompleted)
         {
             if(OnlyCompleted == true)
@@ -154,7 +152,6 @@ namespace HathZipper
                 }
             }
         }
-
         public void CompressGalleries(bool test)
         {
             foreach (Gallery gallery in this.Galleries)
@@ -162,7 +159,6 @@ namespace HathZipper
                 CompressGallery(gallery, test);
             }
         }
-
         public void CompressGallery(Gallery gallery, bool test)
         {
             string TargetFile = this.OutputDirectory + "\\" + gallery.name + ".zip";
