@@ -20,6 +20,12 @@ This project uses third party libraries listed below.
 * NDesk.Options (http://www.ndesk.org/Options)
 
 #### Change log
+##### 2014/01/29
++ Test zip option isn't hardcoded to true anymore
++ Added more scanner options
++ HathZipper is now a class with all logic
++ Galleries are now classes with simple logic for individual operations
++ Improved code
 ##### 2014/01/22
 **First commit and successful build**
 + Scan galleries
