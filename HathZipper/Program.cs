@@ -57,7 +57,9 @@ namespace HathZipper
                 Console.ReadKey();
                 HathZipper zipper = new HathZipper(Extra[0], targetdir);
                 zipper.OnUpdateStatus += new HathZipper.ScanStatusUpdateHandler(GalleryFound);
-                TestGallery(zipper);
+                Console.WriteLine("Starting scan in a second. This might take a few minutes.");
+                Console.Write("Scanning...");
+                zipper.ScanGalleries(); //Loads all (completed) galleries, TODO: Test performance
                 Console.WriteLine("Scan completed.");
                 Console.WriteLine("Found " + zipper.Galleries.Count + "  galleries.");
                 Console.WriteLine("Press any key to start compression.");
@@ -71,13 +73,6 @@ namespace HathZipper
 
             if (help)
                 ShowHelp(p);
-        }
-
-        private static void TestGallery(HathZipper zipper)
-        {
-            Console.WriteLine("Starting scan in a second. This might take a few minutes.");
-            Console.Write("Scanning...");
-            zipper.ScanGalleries(); //Loads all (completed) galleries, TODO: Test performance
         }
 
         private static void GalleryFound(object sender, ScanProgressEventArgs e)
