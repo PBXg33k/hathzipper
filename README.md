@@ -26,6 +26,7 @@ This project uses third party libraries listed below.
 + HathZipper is now a class with all logic
 + Galleries are now classes with simple logic for individual operations
 + Improved code
+
 ##### 2014/01/22
 **First commit and successful build**
 + Scan galleries
