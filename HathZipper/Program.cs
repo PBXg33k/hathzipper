@@ -54,6 +54,7 @@ namespace HathZipper
 
             if (!error)
             {
+                Console.ReadKey();
                 HathZipper zipper = new HathZipper(Extra[0], targetdir);
                 zipper.OnUpdateStatus += new HathZipper.ScanStatusUpdateHandler(GalleryFound);
                 TestGallery(zipper);
@@ -64,6 +65,8 @@ namespace HathZipper
                 zipper.OnSaveProgress += new EventHandler<SaveProgressEventArgs>(ZipProgress);
                 zipper.OnZipError += new EventHandler<ZipErrorEventArgs>(ZipError);
                 zipper.CompressGalleries(test);
+                Console.WriteLine("Finished all work.");
+                Console.WriteLine("Compressed " + zipper.Galleries.Count + " galleries");
             }
 
             if (help)
