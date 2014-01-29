@@ -1,6 +1,7 @@
 ﻿using Ionic.Zip;
 using System;
 using System.ComponentModel;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -63,6 +64,11 @@ namespace HathZipper
             this.Galleries = Galleries;
         }
 
+        private void Construct()
+        {
+            this.Galleries.AllowRemove = false;
+        }
+
         public void ScanGalleries()
         {
             ScanGalleries(true, 3);
@@ -75,6 +81,8 @@ namespace HathZipper
 
         public void ScanGalleries(bool OnlyCompleted, int method)
         {
+            // Set listchanged event to galleryfound notification
+
             switch (method)
             {
                 case 1:
@@ -145,6 +153,7 @@ namespace HathZipper
                     string GalleryPath = gallery.DirectoryName;
                     Gallery g = new Gallery(GalleryPath);
                     this.Galleries.Add(g);
+                    ScanStatusUpdate(1, g);
                 }
             }
             else
@@ -154,6 +163,7 @@ namespace HathZipper
                     string GalleryPath = gallery.Name;
                     Gallery g = new Gallery(GalleryPath);
                     this.Galleries.Add(g);
+                    ScanStatusUpdate(1, g);
                 }
             }
         }
@@ -189,5 +199,97 @@ namespace HathZipper
                 }
             }
         }
+
+
+
+        /// EVENTS
+        public delegate void ScanStatusUpdateHandler(object sender, ScanProgressEventArgs e);
+        public event ScanStatusUpdateHandler OnUpdateStatus;
+
+        private void ScanStatusUpdate(string status, Gallery g)
+        {
+            // Make sure something is listening to this event
+            // If not, return nothing and save cycles
+            if (OnUpdateStatus == null) return;
+
+            ScanProgressEventArgs args = new ScanProgressEventArgs(status, g);
+            OnUpdateStatus(this, args);
+        }
+
+        private void ScanStatusUpdate(int status, Gallery g)
+        {
+            // Make sure something is listening to this event
+            // If not, return nothing and save cycles
+            if (OnUpdateStatus == null) return;
+
+            ScanProgressEventArgs args = new ScanProgressEventArgs(status, g);
+            OnUpdateStatus(this, args);
+        }
     }
+
+    public class ScanProgressEventArgs : EventArgs
+    {
+        public enum ScanStatus
+        {
+            Not_started = 0,
+            Scanning = 1,
+            Paused = 2,
+            Interrupted = 3,
+            Completed = 10
+        }
+
+        public Gallery gallery;
+        public ScanStatus Status { get; private set; }
+        public ScanProgressEventArgs(string status, Gallery g)
+        {
+            switch (status.ToLower())
+            {
+                case "not started":
+                default:
+                    Status = ScanStatus.Not_started;
+                    break;
+                case "scanning":
+                    Status = ScanStatus.Scanning;
+                    break;
+                case "paused":
+                    Status = ScanStatus.Paused;
+                    break;
+                case "interrupted":
+                    Status = ScanStatus.Interrupted;
+                    break;
+                case "completed":
+                    Status = ScanStatus.Completed;
+                    break;
+            }
+
+            gallery = g;
+        }
+
+        public ScanProgressEventArgs(int status, Gallery g)
+        {
+            switch(status)
+            {
+                case 0:
+                default:
+                    Status = ScanStatus.Not_started;
+                    break;
+                case 1:
+                    Status = ScanStatus.Scanning;
+                    break;
+                case 2:
+                    Status = ScanStatus.Paused;
+                    break;
+                case 3:
+                    Status = ScanStatus.Interrupted;
+                    break;
+                case 10:
+                    Status = ScanStatus.Completed;
+                    break;
+            }
+
+            gallery = g;
+        }
+    }
+
+
 }

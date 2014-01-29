@@ -1,6 +1,7 @@
 ﻿using Ionic.Zip;
 using NDesk.Options;
 using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.IO;
 
@@ -58,16 +59,25 @@ namespace HathZipper
             if (!error)
             {
                 HathZipper zipper = new HathZipper(Extra[0],targetdir);
+                zipper.OnUpdateStatus += new HathZipper.ScanStatusUpdateHandler(GalleryFound);
                 TestGallery(zipper);
             }
 
             if (help)
                 ShowHelp(p);
         }
-
         private static void TestGallery(HathZipper zipper)
         {
+            Console.WriteLine("Starting scan in a second. This might take a few minutes.");
+            Console.Write("Scanning...");
             zipper.ScanGalleries(); //Loads all (completed) galleries, TODO: Test performance
+        }
+
+        private static void GalleryFound(object sender, ScanProgressEventArgs e)
+        {
+            Console.SetCursorPosition(0, Console.CursorTop);
+            Console.WriteLine("Found: "+e.gallery.name);
+            Console.Write("Scanning...");
         }
 
         /// <summary>
