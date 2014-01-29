@@ -11,7 +11,7 @@ namespace HathZipper
         complete
     }
 
-    internal class Gallery
+    public class Gallery
     {
         public string path { get; set; }
 
@@ -59,7 +59,11 @@ namespace HathZipper
 
             if (getGalleryStatus(this.path)) { ParseGalleryInfo(this.galleryInfo); }
         }
-
+        /// <summary>
+        /// Checks if gallery is complete (ie: has been downloadeded)
+        /// </summary>
+        /// <param name="path">Path to the gallery or galleryinfo.xt</param>
+        /// <returns></returns>
         private Boolean getGalleryStatus(string path)
         {
             FileAttributes fa = File.GetAttributes(path);
@@ -71,16 +75,25 @@ namespace HathZipper
                 else
                     return false; // 'galleryinfo.txt' doesn't exist
             }
-
+            
             if (!File.Exists(path))
             {
                 return false;
             }
             else
             {
-                this.galleryInfo = File.ReadAllLines(path);
-                ParseGalleryInfo(this.galleryInfo);
-                return true;
+                FileInfo fi = new FileInfo(path);
+                if (fi.Name == "galleryinfo.txt")
+                {
+                    this.galleryInfo = File.ReadAllLines(path);
+                    ParseGalleryInfo(this.galleryInfo);
+                    return true;
+                }
+                else
+                {
+                    // Given filename isn't galleryinfo.txt. Skip it and return false
+                    return false;
+                }
             }
         }
 
@@ -89,7 +102,10 @@ namespace HathZipper
             DirectoryInfo di = new DirectoryInfo(this.path);
             di.Delete(true);
         }
-
+        /// <summary>
+        /// Parses content given from the galleryinfo.txt file and populates fields
+        /// </summary>
+        /// <param name="galleryinfo">content of galleryinfo.txt</param>
         private void ParseGalleryInfo(string[] galleryinfo)
         {
             foreach (string line in galleryinfo)
