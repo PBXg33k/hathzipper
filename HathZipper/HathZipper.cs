@@ -8,10 +8,6 @@ namespace HathZipper
 {
     internal class HathZipper
     {
-        //public delegate void GalleryFoundHandler(object sender, EventArgs e);
-        //public delegate void GalleryUpdateHandler(object sender, ProgressEventArgs e);
-        //public event GalleryUpdateHandler OnGalleryUpdateStatus;
-
         public DirectoryInfo GalleriesDirectory { get; set; }
 
         public DirectoryInfo OutputDirectory { get; set; }
@@ -169,15 +165,28 @@ namespace HathZipper
             }
         }
 
-        public void CompressGalleries(bool test)
+        public void CompressGalleries(bool test, bool delete)
         {
             foreach (Gallery gallery in this.Galleries)
             {
-                CompressGallery(gallery, test);
+                CompressGallery(gallery, test, delete);
             }
         }
 
-        public void CompressGallery(Gallery gallery, bool test)
+        public void DeleteGallery(Gallery gallery)
+        {
+            Directory.Delete(gallery.path,true);
+            if (OnGalleryDeleted != null)
+            {
+                if (!Directory.Exists(gallery.path))
+                {
+                    GalleryEventArgs args = new GalleryEventArgs(GalleryEventArgs.EventType.Gallery_deleted,gallery,gallery.name+" deleted.");
+                    OnGalleryDeleted(this, args);
+                }
+            }
+        }
+
+        public void CompressGallery(Gallery gallery, bool test, bool deleteSources)
         {
             string TargetFile = this.OutputDirectory + "\\" + gallery.name + ".zip";
             using (ZipFile zip = new ZipFile())
@@ -185,7 +194,6 @@ namespace HathZipper
                 zip.AddDirectory(gallery.path);
                 zip.CompressionLevel = Ionic.Zlib.CompressionLevel.BestSpeed;
                 zip.Comment = "Zip created with HathZipper at " + System.DateTime.Now.ToString("G");
-                // TODO: Add zip.SaveProgress & zip.ZipError
                 if (OnSaveProgress != null) zip.SaveProgress += new EventHandler<SaveProgressEventArgs>(OnSaveProgress);
                 if (OnZipError != null) zip.ZipError += new EventHandler<ZipErrorEventArgs>(OnZipError);
                 if (OnAddProgress != null) zip.AddProgress += new EventHandler<AddProgressEventArgs>(OnAddProgress);
@@ -199,9 +207,31 @@ namespace HathZipper
                 {
                     if (OnExtractProgress != null) zip.ExtractProgress += new EventHandler<ExtractProgressEventArgs>(OnExtractProgress);
                     if (OnZipError != null) zip.ZipError += new EventHandler<ZipErrorEventArgs>(OnZipError);
-                    foreach (ZipEntry e in zip)
+                    try
                     {
-                        e.Extract(System.IO.Stream.Null);
+                        if(OnGalleryChange != null)
+                        {
+                            GalleryEventArgs args = new GalleryEventArgs(GalleryEventArgs.EventType.Gallery_changed, gallery, "Testing: " + gallery.name);
+                            OnGalleryChange(this, args);
+                        }
+                        foreach (ZipEntry e in zip)
+                        {
+                            e.Extract(System.IO.Stream.Null);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        zip.Dispose();
+                        File.Delete(TargetFile);
+                        CompressGallery(gallery, test, deleteSources); // Retry
+                    }
+                    finally
+                    {
+                        if (deleteSources == true)
+                        {
+                            DeleteGallery(gallery);
+                        }
+                        gallery.processed = true;
                     }
                 }
             }
@@ -240,6 +270,9 @@ namespace HathZipper
         public event EventHandler<AddProgressEventArgs> OnAddProgress;
 
         public event EventHandler<ExtractProgressEventArgs> OnExtractProgress;
+
+        public event EventHandler<GalleryEventArgs> OnGalleryDeleted;
+        public event EventHandler<GalleryEventArgs> OnGalleryChange;
     }
 
     public class ScanProgressEventArgs : EventArgs
@@ -323,6 +356,32 @@ namespace HathZipper
             }
             Gallery = g.Last();
             Galleries = g;
+        }
+    }
+
+    public class GalleryEventArgs : EventArgs
+    {
+        public enum EventType
+        {
+            Gallery_created,
+            Gallery_changed,
+            Gallery_deleted,
+            Gallery_processed,
+            Gallery_compressed,
+            GalleryImage_added,
+            GalleryImage_changed,
+            GalleryImage_deleted
+        }
+
+        public EventType Type;
+        public Gallery Gallery;
+        public string Message;
+
+        public GalleryEventArgs(EventType type, Gallery gallery, string message)
+        {
+            Type = type;
+            Gallery = gallery;
+            Message = message;
         }
     }
 }
