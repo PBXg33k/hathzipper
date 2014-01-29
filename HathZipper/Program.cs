@@ -17,7 +17,7 @@ namespace HathZipper
             bool help = false;
             bool error = false;
             bool delete = false;
-            bool test = false;
+            bool test = true;
 
             int verbose = 0;
 
@@ -65,12 +65,13 @@ namespace HathZipper
                 Console.ReadKey();
                 zipper.OnSaveProgress += new EventHandler<SaveProgressEventArgs>(ZipProgress);
                 zipper.OnZipError += new EventHandler<ZipErrorEventArgs>(ZipError);
-                zipper.CompressGalleries(true);
+                zipper.CompressGalleries(test);
             }
 
             if (help)
                 ShowHelp(p);
         }
+
         private static void TestGallery(HathZipper zipper)
         {
             Console.WriteLine("Starting scan in a second. This might take a few minutes.");
