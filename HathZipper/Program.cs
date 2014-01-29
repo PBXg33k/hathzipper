@@ -153,10 +153,14 @@ namespace HathZipper
         private static void ZipProgress(object sender, SaveProgressEventArgs args)
         {
             string filename = new DirectoryInfo(args.ArchiveName).Name;
-            string line = args.BytesTransferred.ToString() + "/" + args.TotalBytesToTransfer.ToString();
-            int NewCursorPosition = (Console.CursorLeft - line.Length < 0) ? 0 : Console.CursorLeft - line.Length;
-            Console.SetCursorPosition(NewCursorPosition, Console.CursorTop);
-            Console.Write(line);
+            FileInfo fi = new FileInfo(filename);
+            string line = fi.Name+": "+args.BytesTransferred.ToString() + "/" + args.TotalBytesToTransfer.ToString();
+            //int NewCursorPosition = (Console.CursorLeft - line.Length < 0) ? 0 : Console.CursorLeft - line.Length;
+            Console.SetCursorPosition(0, Console.CursorTop);
+            if (args.EventType == ZipProgressEventType.Saving_Completed)
+                Console.WriteLine("Complete: " + fi.Name +"   ");
+            else
+                Console.Write("Compressing: " + fi.Name);
         }
 
         /// <summary>
