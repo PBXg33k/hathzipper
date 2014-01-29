@@ -12,7 +12,7 @@ namespace HathZipper
         //public delegate void GalleryFoundHandler(object sender, EventArgs e);
         //public delegate void GalleryUpdateHandler(object sender, ProgressEventArgs e);
         //public event GalleryUpdateHandler OnGalleryUpdateStatus;
-
+        
         public DirectoryInfo GalleriesDirectory { get; set; }
 
         public DirectoryInfo OutputDirectory { get; set; }
@@ -153,8 +153,9 @@ namespace HathZipper
                     string GalleryPath = gallery.DirectoryName;
                     Gallery g = new Gallery(GalleryPath);
                     this.Galleries.Add(g);
-                    ScanStatusUpdate(1, g);
+                    ScanStatusUpdate(1, this.Galleries);
                 }
+                ScanStatusUpdate(10, this.Galleries);
             }
             else
             {
@@ -163,8 +164,9 @@ namespace HathZipper
                     string GalleryPath = gallery.Name;
                     Gallery g = new Gallery(GalleryPath);
                     this.Galleries.Add(g);
-                    ScanStatusUpdate(1, g);
+                    ScanStatusUpdate(1, this.Galleries);
                 }
+                ScanStatusUpdate(10, this.Galleries);
             }
         }
 
@@ -185,6 +187,9 @@ namespace HathZipper
                 zip.CompressionLevel = Ionic.Zlib.CompressionLevel.BestSpeed;
                 zip.Comment = "Zip created with HathZipper at " + System.DateTime.Now.ToString("G");
                 // TODO: Add zip.SaveProgress & zip.ZipError
+                zip.SaveProgress += new EventHandler<SaveProgressEventArgs>(OnSaveProgress);
+                zip.ZipError += new EventHandler<ZipErrorEventArgs>(OnZipError);
+                zip.AddProgress += new EventHandler<AddProgressEventArgs>(OnAddProgress);
                 zip.Save(TargetFile);
             }
 
@@ -199,22 +204,10 @@ namespace HathZipper
                 }
             }
         }
-
-
-
+        
         /// EVENTS
         public delegate void ScanStatusUpdateHandler(object sender, ScanProgressEventArgs e);
         public event ScanStatusUpdateHandler OnUpdateStatus;
-
-        private void ScanStatusUpdate(string status, Gallery g)
-        {
-            // Make sure something is listening to this event
-            // If not, return nothing and save cycles
-            if (OnUpdateStatus == null) return;
-
-            ScanProgressEventArgs args = new ScanProgressEventArgs(status, g);
-            OnUpdateStatus(this, args);
-        }
 
         private void ScanStatusUpdate(int status, Gallery g)
         {
@@ -225,6 +218,20 @@ namespace HathZipper
             ScanProgressEventArgs args = new ScanProgressEventArgs(status, g);
             OnUpdateStatus(this, args);
         }
+        private void ScanStatusUpdate(int status, BindingList<Gallery> g)
+        {
+            // Make sure something is listening to this event
+            // If not, return nothing and save cycles
+            if (OnUpdateStatus == null) return;
+
+            ScanProgressEventArgs args = new ScanProgressEventArgs(status, g);
+            OnUpdateStatus(this, args);
+        }
+
+        //ZIP EVENTPROXIES
+        public event EventHandler<SaveProgressEventArgs> OnSaveProgress;
+        public event EventHandler<ZipErrorEventArgs> OnZipError;
+        public event EventHandler<AddProgressEventArgs> OnAddProgress;
     }
 
     public class ScanProgressEventArgs : EventArgs
@@ -235,39 +242,17 @@ namespace HathZipper
             Scanning = 1,
             Paused = 2,
             Interrupted = 3,
+            Compressing = 4, //For zip
             Completed = 10
         }
 
-        public Gallery gallery;
+        public Gallery Gallery;
+        public BindingList<Gallery> Galleries;
         public ScanStatus Status { get; private set; }
-        public ScanProgressEventArgs(string status, Gallery g)
-        {
-            switch (status.ToLower())
-            {
-                case "not started":
-                default:
-                    Status = ScanStatus.Not_started;
-                    break;
-                case "scanning":
-                    Status = ScanStatus.Scanning;
-                    break;
-                case "paused":
-                    Status = ScanStatus.Paused;
-                    break;
-                case "interrupted":
-                    Status = ScanStatus.Interrupted;
-                    break;
-                case "completed":
-                    Status = ScanStatus.Completed;
-                    break;
-            }
-
-            gallery = g;
-        }
 
         public ScanProgressEventArgs(int status, Gallery g)
         {
-            switch(status)
+            switch (status)
             {
                 case 0:
                 default:
@@ -282,14 +267,42 @@ namespace HathZipper
                 case 3:
                     Status = ScanStatus.Interrupted;
                     break;
+                case 4:
+                    Status = ScanStatus.Compressing;
+                    break;
                 case 10:
                     Status = ScanStatus.Completed;
                     break;
             }
 
-            gallery = g;
+            Gallery = g;
+        }
+        public ScanProgressEventArgs(int status, BindingList<Gallery> g)
+        {
+            switch (status)
+            {
+                case 0:
+                default:
+                    Status = ScanStatus.Not_started;
+                    break;
+                case 1:
+                    Status = ScanStatus.Scanning;
+                    break;
+                case 2:
+                    Status = ScanStatus.Paused;
+                    break;
+                case 3:
+                    Status = ScanStatus.Interrupted;
+                    break;
+                case 4:
+                    Status = ScanStatus.Compressing;
+                    break;
+                case 10:
+                    Status = ScanStatus.Completed;
+                    break;
+            }
+            Gallery = g.Last();
+            Galleries = g;
         }
     }
-
-
 }
