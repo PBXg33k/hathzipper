@@ -54,7 +54,6 @@ namespace HathZipper
 
             if (!error)
             {
-                Console.ReadKey();
                 HathZipper zipper = new HathZipper(Extra[0], targetdir);
                 zipper.OnUpdateStatus += new HathZipper.ScanStatusUpdateHandler(GalleryFound);
                 Console.WriteLine("Starting scan in a second. This might take a few minutes.");
@@ -66,13 +65,32 @@ namespace HathZipper
                 Console.ReadKey();
                 zipper.OnSaveProgress += new EventHandler<SaveProgressEventArgs>(ZipProgress);
                 zipper.OnZipError += new EventHandler<ZipErrorEventArgs>(ZipError);
-                zipper.CompressGalleries(test);
+                zipper.OnGalleryDeleted += new EventHandler<GalleryEventArgs>(GalleryDeleted);
+                zipper.OnGalleryChange += new EventHandler<GalleryEventArgs>(GalleryChange);
+                zipper.CompressGalleries(test, delete);
                 Console.WriteLine("Finished all work.");
                 Console.WriteLine("Compressed " + zipper.Galleries.Count + " galleries");
+                Console.ReadKey();
             }
 
             if (help)
                 ShowHelp(p);
+        }
+
+        private static void GalleryDeleted(object sender, GalleryEventArgs e)
+        {
+            //Console.WriteLine(e.Message);
+            Console.WriteLine("Deleted: " + e.Gallery.name);
+        }
+
+        private static void GalleryChange(object sender,GalleryEventArgs e)
+        {
+            if(e.Type == GalleryEventArgs.EventType.Gallery_changed)
+            {
+                Console.SetCursorPosition(0, Console.CursorTop);
+                Console.Write(e.Message);
+                Console.SetCursorPosition(0, Console.CursorTop);
+            }
         }
 
         private static void GalleryFound(object sender, ScanProgressEventArgs e)

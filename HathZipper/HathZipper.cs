@@ -165,11 +165,24 @@ namespace HathZipper
             }
         }
 
-        public void CompressGalleries(bool test)
+        public void CompressGalleries(bool test, bool delete)
         {
             foreach (Gallery gallery in this.Galleries)
             {
-                CompressGallery(gallery, test, false);
+                CompressGallery(gallery, test, delete);
+            }
+        }
+
+        public void DeleteGallery(Gallery gallery)
+        {
+            Directory.Delete(gallery.path,true);
+            if (OnGalleryDeleted != null)
+            {
+                if (!Directory.Exists(gallery.path))
+                {
+                    GalleryEventArgs args = new GalleryEventArgs(GalleryEventArgs.EventType.Gallery_deleted,gallery,gallery.name+" deleted.");
+                    OnGalleryDeleted(this, args);
+                }
             }
         }
 
@@ -196,12 +209,17 @@ namespace HathZipper
                     if (OnZipError != null) zip.ZipError += new EventHandler<ZipErrorEventArgs>(OnZipError);
                     try
                     {
+                        if(OnGalleryChange != null)
+                        {
+                            GalleryEventArgs args = new GalleryEventArgs(GalleryEventArgs.EventType.Gallery_changed, gallery, "Testing: " + gallery.name);
+                            OnGalleryChange(this, args);
+                        }
                         foreach (ZipEntry e in zip)
                         {
                             e.Extract(System.IO.Stream.Null);
                         }
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         zip.Dispose();
                         File.Delete(TargetFile);
@@ -209,10 +227,9 @@ namespace HathZipper
                     }
                     finally
                     {
-                        if(deleteSources == true)
+                        if (deleteSources == true)
                         {
-                            Directory.Delete(gallery.path, true);
-                            //Galleries.RemoveAt(Galleries.IndexOf(gallery));
+                            DeleteGallery(gallery);
                         }
                         gallery.processed = true;
                     }
@@ -253,6 +270,9 @@ namespace HathZipper
         public event EventHandler<AddProgressEventArgs> OnAddProgress;
 
         public event EventHandler<ExtractProgressEventArgs> OnExtractProgress;
+
+        public event EventHandler<GalleryEventArgs> OnGalleryDeleted;
+        public event EventHandler<GalleryEventArgs> OnGalleryChange;
     }
 
     public class ScanProgressEventArgs : EventArgs
@@ -336,6 +356,32 @@ namespace HathZipper
             }
             Gallery = g.Last();
             Galleries = g;
+        }
+    }
+
+    public class GalleryEventArgs : EventArgs
+    {
+        public enum EventType
+        {
+            Gallery_created,
+            Gallery_changed,
+            Gallery_deleted,
+            Gallery_processed,
+            Gallery_compressed,
+            GalleryImage_added,
+            GalleryImage_changed,
+            GalleryImage_deleted
+        }
+
+        public EventType Type;
+        public Gallery Gallery;
+        public string Message;
+
+        public GalleryEventArgs(EventType type, Gallery gallery, string message)
+        {
+            Type = type;
+            Gallery = gallery;
+            Message = message;
         }
     }
 }
