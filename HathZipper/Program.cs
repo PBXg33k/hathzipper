@@ -1,7 +1,6 @@
 ﻿using Ionic.Zip;
 using NDesk.Options;
 using System;
-using System.ComponentModel;
 using System.Collections.Generic;
 using System.IO;
 
@@ -11,7 +10,7 @@ namespace HathZipper
     {
         private static void Main(string[] args)
         {
-            Console.Title = "HathZipper Alpha "+System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()+" ("+RetrieveLinkerTimestamp()+")";
+            Console.Title = "HathZipper Alpha " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + " (" + RetrieveLinkerTimestamp() + ")";
             Console.WindowWidth = 140;
             string targetdir = general.Default.TargetDirecory;
             bool help = false;
@@ -56,7 +55,7 @@ namespace HathZipper
 
             if (!error)
             {
-                HathZipper zipper = new HathZipper(Extra[0],targetdir);
+                HathZipper zipper = new HathZipper(Extra[0], targetdir);
                 zipper.OnUpdateStatus += new HathZipper.ScanStatusUpdateHandler(GalleryFound);
                 TestGallery(zipper);
                 Console.WriteLine("Scan completed.");
@@ -82,7 +81,7 @@ namespace HathZipper
         private static void GalleryFound(object sender, ScanProgressEventArgs e)
         {
             Console.SetCursorPosition(0, Console.CursorTop);
-            Console.WriteLine("Found ("+e.Galleries.Count+"):"+e.Gallery.name);
+            Console.WriteLine("Found (" + e.Galleries.Count + "):" + e.Gallery.name);
             Console.Write("Scanning...");
         }
 
@@ -155,11 +154,11 @@ namespace HathZipper
         {
             string filename = new DirectoryInfo(args.ArchiveName).Name;
             FileInfo fi = new FileInfo(filename);
-            string line = fi.Name+": "+args.BytesTransferred.ToString() + "/" + args.TotalBytesToTransfer.ToString();
+            string line = fi.Name + ": " + args.BytesTransferred.ToString() + "/" + args.TotalBytesToTransfer.ToString();
             //int NewCursorPosition = (Console.CursorLeft - line.Length < 0) ? 0 : Console.CursorLeft - line.Length;
             Console.SetCursorPosition(0, Console.CursorTop);
             if (args.EventType == ZipProgressEventType.Saving_Completed)
-                Console.WriteLine("Complete: " + fi.Name +"   ");
+                Console.WriteLine("Complete: " + fi.Name + "   ");
             else
                 Console.Write("Compressing: " + fi.Name);
         }
@@ -187,7 +186,7 @@ namespace HathZipper
             Console.WriteLine("Options:");
             p.WriteOptionDescriptions(Console.Out);
         }
-        
+
         private static DateTime RetrieveLinkerTimestamp()
         {
             string filePath = System.Reflection.Assembly.GetCallingAssembly().Location;

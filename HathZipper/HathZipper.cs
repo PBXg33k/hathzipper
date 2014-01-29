@@ -1,7 +1,6 @@
 ﻿using Ionic.Zip;
 using System;
 using System.ComponentModel;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -12,7 +11,7 @@ namespace HathZipper
         //public delegate void GalleryFoundHandler(object sender, EventArgs e);
         //public delegate void GalleryUpdateHandler(object sender, ProgressEventArgs e);
         //public event GalleryUpdateHandler OnGalleryUpdateStatus;
-        
+
         public DirectoryInfo GalleriesDirectory { get; set; }
 
         public DirectoryInfo OutputDirectory { get; set; }
@@ -187,10 +186,10 @@ namespace HathZipper
                 zip.CompressionLevel = Ionic.Zlib.CompressionLevel.BestSpeed;
                 zip.Comment = "Zip created with HathZipper at " + System.DateTime.Now.ToString("G");
                 // TODO: Add zip.SaveProgress & zip.ZipError
-                if(OnSaveProgress != null) zip.SaveProgress += new EventHandler<SaveProgressEventArgs>(OnSaveProgress);
-                if(OnZipError != null) zip.ZipError += new EventHandler<ZipErrorEventArgs>(OnZipError);
-                if(OnAddProgress != null) zip.AddProgress += new EventHandler<AddProgressEventArgs>(OnAddProgress);
-                
+                if (OnSaveProgress != null) zip.SaveProgress += new EventHandler<SaveProgressEventArgs>(OnSaveProgress);
+                if (OnZipError != null) zip.ZipError += new EventHandler<ZipErrorEventArgs>(OnZipError);
+                if (OnAddProgress != null) zip.AddProgress += new EventHandler<AddProgressEventArgs>(OnAddProgress);
+
                 zip.Save(TargetFile);
             }
 
@@ -207,9 +206,10 @@ namespace HathZipper
                 }
             }
         }
-        
+
         /// EVENTS
         public delegate void ScanStatusUpdateHandler(object sender, ScanProgressEventArgs e);
+
         public event ScanStatusUpdateHandler OnUpdateStatus;
 
         private void ScanStatusUpdate(int status, Gallery g)
@@ -221,6 +221,7 @@ namespace HathZipper
             ScanProgressEventArgs args = new ScanProgressEventArgs(status, g);
             OnUpdateStatus(this, args);
         }
+
         private void ScanStatusUpdate(int status, BindingList<Gallery> g)
         {
             // Make sure something is listening to this event
@@ -233,8 +234,11 @@ namespace HathZipper
 
         //ZIP EVENTPROXIES
         public event EventHandler<SaveProgressEventArgs> OnSaveProgress;
+
         public event EventHandler<ZipErrorEventArgs> OnZipError;
+
         public event EventHandler<AddProgressEventArgs> OnAddProgress;
+
         public event EventHandler<ExtractProgressEventArgs> OnExtractProgress;
     }
 
@@ -252,6 +256,7 @@ namespace HathZipper
 
         public Gallery Gallery;
         public BindingList<Gallery> Galleries;
+
         public ScanStatus Status { get; private set; }
 
         public ScanProgressEventArgs(int status, Gallery g)
@@ -262,18 +267,23 @@ namespace HathZipper
                 default:
                     Status = ScanStatus.Not_started;
                     break;
+
                 case 1:
                     Status = ScanStatus.Scanning;
                     break;
+
                 case 2:
                     Status = ScanStatus.Paused;
                     break;
+
                 case 3:
                     Status = ScanStatus.Interrupted;
                     break;
+
                 case 4:
                     Status = ScanStatus.Compressing;
                     break;
+
                 case 10:
                     Status = ScanStatus.Completed;
                     break;
@@ -281,6 +291,7 @@ namespace HathZipper
 
             Gallery = g;
         }
+
         public ScanProgressEventArgs(int status, BindingList<Gallery> g)
         {
             switch (status)
@@ -289,18 +300,23 @@ namespace HathZipper
                 default:
                     Status = ScanStatus.Not_started;
                     break;
+
                 case 1:
                     Status = ScanStatus.Scanning;
                     break;
+
                 case 2:
                     Status = ScanStatus.Paused;
                     break;
+
                 case 3:
                     Status = ScanStatus.Interrupted;
                     break;
+
                 case 4:
                     Status = ScanStatus.Compressing;
                     break;
+
                 case 10:
                     Status = ScanStatus.Completed;
                     break;

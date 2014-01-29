@@ -59,6 +59,7 @@ namespace HathZipper
 
             if (getGalleryStatus(this.path)) { ParseGalleryInfo(this.galleryInfo); }
         }
+
         /// <summary>
         /// Checks if gallery is complete (ie: has been downloadeded)
         /// </summary>
@@ -75,7 +76,7 @@ namespace HathZipper
                 else
                     return false; // 'galleryinfo.txt' doesn't exist
             }
-            
+
             if (!File.Exists(path))
             {
                 return false;
@@ -102,6 +103,7 @@ namespace HathZipper
             DirectoryInfo di = new DirectoryInfo(this.path);
             di.Delete(true);
         }
+
         /// <summary>
         /// Parses content given from the galleryinfo.txt file and populates fields
         /// </summary>
