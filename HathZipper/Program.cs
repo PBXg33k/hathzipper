@@ -17,7 +17,6 @@ namespace HathZipper
             bool error = false;
             bool delete = false;
             bool test = true;
-
             int verbose = 0;
 
             var p = new OptionSet()
@@ -85,66 +84,6 @@ namespace HathZipper
             Console.Write("Scanning...");
         }
 
-        /// <summary>
-        /// Looks up galleries that are completed by the HatH client.
-        /// These galleries contain a galleryinfo.txt file.
-        /// </summary>
-        /// <param name="path">{hath_client_path}/downloaded</param>
-        /// <returns>Lists of gallerypaths</returns>
-        private static List<string> GetCompletedHatHGalleries(string path)
-        {
-            Console.WriteLine("Looking for completed HatH galleries in " + path);
-            string[] Files = Directory.GetFiles(path, "galleryinfo.txt", SearchOption.AllDirectories);
-            List<string> CompletedDirectories = new List<string>();
-
-            foreach (string file in Files)
-            {
-                CompletedDirectories.Add(Directory.GetParent(file).ToString());
-            }
-
-            return CompletedDirectories;
-        }
-
-        /// <summary>
-        /// Checks if the given Gallery is already compressed to a file in the output directory
-        /// </summary>
-        /// <param name="path">Path to the galllery</param>
-        /// <returns>TRUE if zip exists, FALSE if not</returns>
-        private static bool CheckGalleryStatus(string path)
-        {
-            return false;
-        }
-
-        /// <summary>
-        /// Compresses the given gallery to a zipfile
-        /// </summary>
-        /// <param name="path">Path to the gallery</param>
-        /// <param name="test">Test the zip right after compression</param>
-        /// <param name="target">Output directory to place the zipfile</param>
-        /// <returns></returns>
-        private static bool CompressGallery(string path, bool test, string target)
-        {
-            string galleryName = new DirectoryInfo(path).Name;
-            using (ZipFile zip = new ZipFile())
-            {
-                Console.WriteLine("Compressing gallery: " + galleryName);
-                zip.AddDirectory(path);
-                zip.CompressionLevel = Ionic.Zlib.CompressionLevel.BestSpeed;
-                zip.Comment = "Zip created with HathZipper v0.0.1_prealpha at " + System.DateTime.Now.ToString("G");
-                //zip.AddProgress += new EventHandler<AddProgressEventArgs>(ZipProgress);
-                zip.SaveProgress += new EventHandler<SaveProgressEventArgs>(ZipProgress);
-                zip.ZipError += new EventHandler<ZipErrorEventArgs>(ZipError);
-                zip.Save(target + "\\" + galleryName + ".zip");
-                Console.WriteLine();
-            }
-            return false;
-        }
-
-        private static void DeleteGallery(string path)
-        {
-            Directory.Delete(path, true);
-        }
-
         private static void ZipError(object sender, ZipErrorEventArgs e)
         {
             ConsoleError("ZIPERROR: An error occured while compressing a gallery. The following exception was thrown: " + e.Exception.Message);
@@ -155,7 +94,6 @@ namespace HathZipper
             string filename = new DirectoryInfo(args.ArchiveName).Name;
             FileInfo fi = new FileInfo(filename);
             string line = fi.Name + ": " + args.BytesTransferred.ToString() + "/" + args.TotalBytesToTransfer.ToString();
-            //int NewCursorPosition = (Console.CursorLeft - line.Length < 0) ? 0 : Console.CursorLeft - line.Length;
             Console.SetCursorPosition(0, Console.CursorTop);
             if (args.EventType == ZipProgressEventType.Saving_Completed)
                 Console.WriteLine("Complete: " + fi.Name + "   ");

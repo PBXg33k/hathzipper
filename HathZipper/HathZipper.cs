@@ -8,10 +8,6 @@ namespace HathZipper
 {
     internal class HathZipper
     {
-        //public delegate void GalleryFoundHandler(object sender, EventArgs e);
-        //public delegate void GalleryUpdateHandler(object sender, ProgressEventArgs e);
-        //public event GalleryUpdateHandler OnGalleryUpdateStatus;
-
         public DirectoryInfo GalleriesDirectory { get; set; }
 
         public DirectoryInfo OutputDirectory { get; set; }
@@ -185,7 +181,6 @@ namespace HathZipper
                 zip.AddDirectory(gallery.path);
                 zip.CompressionLevel = Ionic.Zlib.CompressionLevel.BestSpeed;
                 zip.Comment = "Zip created with HathZipper at " + System.DateTime.Now.ToString("G");
-                // TODO: Add zip.SaveProgress & zip.ZipError
                 if (OnSaveProgress != null) zip.SaveProgress += new EventHandler<SaveProgressEventArgs>(OnSaveProgress);
                 if (OnZipError != null) zip.ZipError += new EventHandler<ZipErrorEventArgs>(OnZipError);
                 if (OnAddProgress != null) zip.AddProgress += new EventHandler<AddProgressEventArgs>(OnAddProgress);
