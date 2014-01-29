@@ -169,11 +169,11 @@ namespace HathZipper
         {
             foreach (Gallery gallery in this.Galleries)
             {
-                CompressGallery(gallery, test);
+                CompressGallery(gallery, test, false);
             }
         }
 
-        public void CompressGallery(Gallery gallery, bool test)
+        public void CompressGallery(Gallery gallery, bool test, bool deleteSources)
         {
             string TargetFile = this.OutputDirectory + "\\" + gallery.name + ".zip";
             using (ZipFile zip = new ZipFile())
@@ -194,9 +194,27 @@ namespace HathZipper
                 {
                     if (OnExtractProgress != null) zip.ExtractProgress += new EventHandler<ExtractProgressEventArgs>(OnExtractProgress);
                     if (OnZipError != null) zip.ZipError += new EventHandler<ZipErrorEventArgs>(OnZipError);
-                    foreach (ZipEntry e in zip)
+                    try
                     {
-                        e.Extract(System.IO.Stream.Null);
+                        foreach (ZipEntry e in zip)
+                        {
+                            e.Extract(System.IO.Stream.Null);
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        zip.Dispose();
+                        File.Delete(TargetFile);
+                        CompressGallery(gallery, test, deleteSources); // Retry
+                    }
+                    finally
+                    {
+                        if(deleteSources == true)
+                        {
+                            Directory.Delete(gallery.path, true);
+                            //Galleries.RemoveAt(Galleries.IndexOf(gallery));
+                        }
+                        gallery.processed = true;
                     }
                 }
             }
