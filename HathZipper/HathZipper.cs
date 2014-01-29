@@ -187,9 +187,10 @@ namespace HathZipper
                 zip.CompressionLevel = Ionic.Zlib.CompressionLevel.BestSpeed;
                 zip.Comment = "Zip created with HathZipper at " + System.DateTime.Now.ToString("G");
                 // TODO: Add zip.SaveProgress & zip.ZipError
-                zip.SaveProgress += new EventHandler<SaveProgressEventArgs>(OnSaveProgress);
-                zip.ZipError += new EventHandler<ZipErrorEventArgs>(OnZipError);
-                zip.AddProgress += new EventHandler<AddProgressEventArgs>(OnAddProgress);
+                if(OnSaveProgress != null) zip.SaveProgress += new EventHandler<SaveProgressEventArgs>(OnSaveProgress);
+                if(OnZipError != null) zip.ZipError += new EventHandler<ZipErrorEventArgs>(OnZipError);
+                if(OnAddProgress != null) zip.AddProgress += new EventHandler<AddProgressEventArgs>(OnAddProgress);
+                
                 zip.Save(TargetFile);
             }
 
@@ -197,6 +198,8 @@ namespace HathZipper
             {
                 using (ZipFile zip = ZipFile.Read(TargetFile))
                 {
+                    if (OnExtractProgress != null) zip.ExtractProgress += new EventHandler<ExtractProgressEventArgs>(OnExtractProgress);
+                    if (OnZipError != null) zip.ZipError += new EventHandler<ZipErrorEventArgs>(OnZipError);
                     foreach (ZipEntry e in zip)
                     {
                         e.Extract(System.IO.Stream.Null);
@@ -232,6 +235,7 @@ namespace HathZipper
         public event EventHandler<SaveProgressEventArgs> OnSaveProgress;
         public event EventHandler<ZipErrorEventArgs> OnZipError;
         public event EventHandler<AddProgressEventArgs> OnAddProgress;
+        public event EventHandler<ExtractProgressEventArgs> OnExtractProgress;
     }
 
     public class ScanProgressEventArgs : EventArgs
