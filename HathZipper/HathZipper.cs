@@ -354,7 +354,8 @@ namespace HathZipper
                     Status = ScanStatus.Completed;
                     break;
             }
-            Gallery = g.Last();
+            if(g.Count > 0)
+                Gallery = g.Last();
             Galleries = g;
         }
     }
