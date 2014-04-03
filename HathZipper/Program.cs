@@ -60,16 +60,23 @@ namespace HathZipper
                 Console.Write("Scanning...");
                 zipper.ScanGalleries(); //Loads all (completed) galleries, TODO: Test performance
                 Console.WriteLine("Scan completed.");
-                Console.WriteLine("Found " + zipper.Galleries.Count + "  galleries.");
-                Console.WriteLine("Press any key to start compression.");
-                Console.ReadKey();
-                zipper.OnSaveProgress += new EventHandler<SaveProgressEventArgs>(ZipProgress);
-                zipper.OnZipError += new EventHandler<ZipErrorEventArgs>(ZipError);
-                zipper.OnGalleryDeleted += new EventHandler<GalleryEventArgs>(GalleryDeleted);
-                zipper.OnGalleryChange += new EventHandler<GalleryEventArgs>(GalleryChange);
-                zipper.CompressGalleries(test, delete);
-                Console.WriteLine("Finished all work.");
-                Console.WriteLine("Compressed " + zipper.Galleries.Count + " galleries");
+                if (zipper.Galleries.Count > 0)
+                {
+                    Console.WriteLine("Found " + zipper.Galleries.Count + "  galleries.");
+                    Console.WriteLine("Press any key to start compression.");
+                    Console.ReadKey();
+                    zipper.OnSaveProgress += new EventHandler<SaveProgressEventArgs>(ZipProgress);
+                    zipper.OnZipError += new EventHandler<ZipErrorEventArgs>(ZipError);
+                    zipper.OnGalleryDeleted += new EventHandler<GalleryEventArgs>(GalleryDeleted);
+                    zipper.OnGalleryChange += new EventHandler<GalleryEventArgs>(GalleryChange);
+                    zipper.CompressGalleries(test, delete);
+                    Console.WriteLine("Finished all work.");
+                    Console.WriteLine("Compressed " + zipper.Galleries.Count + " galleries.");
+                }
+                else
+                {
+                    Console.WriteLine("No galleries found.");
+                }
                 Console.ReadKey();
             }
 
@@ -96,7 +103,8 @@ namespace HathZipper
         private static void GalleryFound(object sender, ScanProgressEventArgs e)
         {
             Console.SetCursorPosition(0, Console.CursorTop);
-            Console.WriteLine("Found (" + e.Galleries.Count + "):" + e.Gallery.name);
+            if(e.Galleries.Count > 0)
+                Console.WriteLine("Found (" + e.Galleries.Count + "):" + e.Gallery.name);
             Console.Write("Scanning...");
         }
 
