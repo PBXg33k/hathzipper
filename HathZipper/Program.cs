@@ -17,6 +17,8 @@ namespace HathZipper
             bool error = false;
             bool delete = false;
             bool test = true;
+            bool skipConfirmation = false;
+            bool exitImmediatly = false;
             int verbose = 0;
 
             var p = new OptionSet()
@@ -25,7 +27,9 @@ namespace HathZipper
                 { "d|delete",       "Deletes sourcefiles after compression (implies zip test)", v => { delete = true; test = true; }},
                 { "t|test",         "Test compressed files after compressing", v => { test = true; }},
                 { "v",              "Increase verbosity",                         v => { ++verbose; }},
-                { "h|?|help",       "Show this help message and exit",            v => help = v != null }
+                { "h|?|help",       "Show this help message and exit",            v => help = v != null },
+                { "s|skip-confirmation", "Skips confirmation before starting compression", v => { skipConfirmation = true; }},
+                { "x|exit-immediatly", "Exits the application without waiting for user input", v => { exitImmediatly = true; }}
             };
             List<string> Extra = p.Parse(args);
 
@@ -63,8 +67,10 @@ namespace HathZipper
                 if (zipper.Galleries.Count > 0)
                 {
                     Console.WriteLine("Found " + zipper.Galleries.Count + "  galleries.");
-                    Console.WriteLine("Press any key to start compression.");
-                    Console.ReadKey();
+                    if(!skipConfirmation) {
+                        Console.WriteLine("Press any key to start compression.");
+                        Console.ReadKey();
+                    }
                     zipper.OnSaveProgress += new EventHandler<SaveProgressEventArgs>(ZipProgress);
                     zipper.OnZipError += new EventHandler<ZipErrorEventArgs>(ZipError);
                     zipper.OnGalleryDeleted += new EventHandler<GalleryEventArgs>(GalleryDeleted);
@@ -77,7 +83,8 @@ namespace HathZipper
                 {
                     Console.WriteLine("No galleries found.");
                 }
-                Console.ReadKey();
+                if (!exitImmediatly)
+                    Console.ReadKey();
             }
 
             if (help)
